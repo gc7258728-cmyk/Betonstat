@@ -1,0 +1,390 @@
+# BétonStat - copie de déploiement
+
+Version 2.0 - 31 octobre 2026
+
+Cette copie contient exactement app.py, requirements.txt et README.
+Le dossier local original conserve le nom demandé requirement.text ; cette
+copie utilise requirements.txt, attendu par Streamlit Community Cloud.
+
+Installation de CETTE copie :
+
+    python -m pip install -r requirements.txt
+    python -m streamlit run app.py
+
+Publication depuis VS Code :
+1. Créer un nouveau dépôt GitHub vide, par exemple betonstat si libre.
+2. Extraire les trois fichiers et ouvrir ce dossier dans VS Code.
+3. Ouvrir Terminal > Nouveau terminal et exécuter :
+
+    git init
+    git add app.py requirements.txt README
+    git commit -m "Version 2 de BetonStat"
+    git branch -M main
+    git remote add origin https://github.com/gc7258728-cmyk/betonstat.git
+    git remote -v
+    git push -u origin main
+
+L’adresse est un exemple pour le compte mentionné dans les échanges ;
+créer le dépôt correspondant ou adapter l’URL. Si origin existe déjà,
+vérifier sa cible avant de le modifier.
+
+Dans Streamlit Community Cloud : New app > choisir le dépôt > main > app.py.
+Si le formulaire Paste URL est utilisé, fournir l’URL du fichier publié :
+https://github.com/gc7258728-cmyk/betonstat/blob/main/app.py
+
+Partager ensuite l’adresse publique .streamlit.app. Aucun dépôt distant ni
+déploiement public n’a été créé automatiquement pendant la préparation.
+
+Les données UCI sont incluses dans app.py avec citation et vérification
+d’empreinte. Il n’y a ni clé API ni compte à configurer. Les données saisies
+restent en session : exporter le JSON pour les conserver.
+
+Mettre à jour : tester, modifier les fichiers puis :
+
+    git status
+    git add app.py requirements.txt README
+    git commit -m "Mise a jour de BetonStat"
+    git push
+
+Les étapes et méthodes de l’application suivent ci-dessous.
+
+## 3. Source expérimentale documentée
+
+Yeh, I. (1998). Concrete Compressive Strength [Dataset].
+UCI Machine Learning Repository. https://doi.org/10.24432/C5PK67
+Licence : Creative Commons Attribution 4.0 (CC BY 4.0).
+Fiche : https://archive.ics.uci.edu/dataset/165/concrete+compressive+strength
+CSV : https://archive.ics.uci.edu/static/public/165/data.csv
+Licence : https://creativecommons.org/licenses/by/4.0/
+
+Copie récupérée le 31 octobre 2026. Le CSV est intégré sans modification à
+app.py sous forme compressée. Il est décompressé en mémoire et son SHA-256
+est vérifié. Aucun accès Internet n’est nécessaire pour charger cette copie.
+Le jeu n’est pas présenté comme une étude locale camerounaise.
+
+SHA-256 du CSV téléchargé :
+8d4b15b6fc68cd932d745cbd663d5ceae66dd54422e99c1e4865f2936ab7e2af
+
+1 030 lignes ; 8 variables d’entrée et une résistance de sortie :
+- ciment, laitier, cendres, eau, adjuvant, gravier, sable : kg/m³ de mélange ;
+- age : jours ;
+- resistance : MPa.
+
+La copie CSV a une précision propre. Le fichier XLS historique disponible
+chez UCI peut conserver plus de décimales : ne pas confondre les versions.
+Le schéma ne fournit pas d’identifiant de lot ni de chantier exploitable.
+Une ligne répétée peut être une répétition d’essai ou un doublon : sans
+métadonnées, BétonStat ne tranche pas automatiquement cette question.
+
+Les libellés français sont une adaptation des noms de variables ; les données
+du CSV incorporé restent intactes. Citer le créateur, UCI et le DOI en cas
+de réutilisation. La licence des données ne vaut pas licence de l’article cité.
+
+## 4. Parcours des écrans
+
+Vue d’ensemble : ouverture directe ; deux boutons de chargement explicite,
+puis trois espaces colorés (Mes données / Ce que j’observe / Ce que j’explore),
+des indicateurs, un mini-histogramme, les graphiques et des conseils contextuels.
+Aucune donnée fictive ou expérimentale n’est activée silencieusement.
+
+Données : charger UCI ou le test fictif ; importer un fichier, saisir ou
+corriger un tableau ; consulter la sélection, les données brutes et le
+journal de nettoyage ; télécharger le modèle et les CSV.
+
+Statistiques : moyenne, médiane, variance, écart-type, CV, quantiles ; tableau
+par variable et rééchantillonnage bootstrap de la moyenne sur demande.
+Les boutons « Comprendre » expliquent chaque calcul sur la sélection active
+ou sur cinq valeurs fictives explicitement choisies. Une liste affichée peut
+être abrégée, mais les calculs utilisent toutes les valeurs disponibles.
+
+Distributions : fréquence strictement sous le seuil, intervalle de Wilson,
+probabilité normale ajustée, histogramme, fonction cumulée empirique et
+diagramme quantile-quantile normal ; repérage des valeurs extrêmes sans retrait.
+
+Relations : nuage de points avec zoom, Pearson, Spearman, droite descriptive,
+R², matrice de corrélation et tableau des effectifs de chaque paire.
+
+Comparateur : deux groupes disjoints selon une variable de composition,
+l’âge ou le rapport eau/liant ; seuil réglable, effectifs, moyennes, médianes,
+écarts-types, CV, âges moyens, boîtes de dispersion et histogramme commun.
+A = variable <= seuil ; B = variable > seuil. Les valeurs manquantes restent
+hors des deux groupes et sont comptées. La différence B - A est descriptive,
+sans conclusion causale ni classement réglementaire de formulations.
+Retenir une comparaison permet de l’ajouter au PDF. Modifier le jeu ou les
+filtres invalide cette sélection. L’export CSV contient les deux groupes.
+
+Fiches d’essais : choix d’une ligne source, boutons précédent/suivant,
+composition chiffrée et graphique à couleurs fixes par constituant, âge,
+résistance, rapport eau/liant et position dans la distribution sélectionnée.
+Position (%) = nombre(R <= résistance de l’essai) / n * 100 ; les égalités
+sont incluses. Ce n’est pas une note de qualité ni un rang normatif.
+Un dosage absent reste manquant, distinct d’un dosage explicitement nul.
+Le numéro de ligne n’est ni un identifiant de lot ni un identifiant durable.
+Une fiche peut être téléchargée en CSV.
+
+Rapports : titre, étudiant/groupe, établissement, date, choix des graphiques,
+comparaison retenue en option, conclusion modifiable et hypothèses déclarées.
+PDF enrichi, Excel à cinq feuilles, sélection CSV, sauvegarde JSON et
+restauration après confirmation. Les champs du rapport sont conservés pendant
+la navigation dans la session ; une nouvelle session ne les récupère pas.
+
+Méthodes et tests : formules, parcours de démonstration, résultats de référence,
+hypothèses, limites et sources.
+
+Le menu latéral applique le même filtre à toutes les analyses : tous âges,
+28 jours exacts ou une plage d’âge. Le seuil sert à la comparaison R < seuil,
+pas à filtrer les observations ni à déclarer un béton conforme.
+
+## 5. Importer et saisir
+
+CSV UTF-8 recommandé, séparateur virgule ou point-virgule, ou XLSX : première
+feuille seulement. Ancien format XLS non accepté : convertir en XLSX/CSV.
+Le CSV UCI est reconnu directement, même avec ses en-têtes anglais.
+Maximum : 5 Mo, 10 000 lignes et 50 colonnes d’entrée.
+Classeur décompressé limité à 30 Mo et 500 entrées ZIP.
+Une cellule numérique est limitée à 100 octets de texte UTF-8.
+Une sauvegarde JSON est limitée à 12 Mo.
+
+Noms de colonnes canoniques :
+
+    ciment;laitier;cendres;eau;adjuvant;gravier;sable;age;resistance
+
+Seule resistance est indispensable. Les colonnes absentes restent manquantes.
+Les en-têtes français usuels et anglais UCI sont reconnus ; les colonnes
+inconnues sont signalées puis ignorées. Deux colonnes associées à la même
+variable sont refusées. Vérifier l’aperçu avant confirmation du remplacement.
+Les fichiers ne sont pas fusionnés automatiquement.
+
+Valeurs : virgule décimale acceptée dans un CSV séparé par point-virgule ;
+ne pas écrire les unités dans les cellules. Les dosages sont des masses
+par m³ de mélange, pas la masse totale d’une gâchée.
+
+Saisie manuelle : tableau actif ou nouveau tableau vide, ajout/suppression
+de lignes, puis confirmation et Enregistrer le tableau. Les lignes totalement
+vides sont ignorées lors de l’enregistrement. Limite d’édition à l’écran :
+1 500 lignes ; au-delà, exporter, modifier puis importer.
+
+Le chargement d’une autre source remplace le jeu actif, réinitialise les
+réglages, et invalide les rapports/bootstraps préparés.
+La correction d’un jeu UCI devient une saisie utilisateur avec une provenance
+distincte ; aucune donnée modifiée n’est présentée comme le CSV UCI original.
+
+## 6. Nettoyage explicite
+
+Les données brutes sont conservées en mémoire sous forme textuelle, avant
+conversion numérique. Les règles de base excluent une ligne si :
+- résistance absente, non numérique, infinie ou non strictement positive ;
+- âge renseigné non entier ou non strictement positif ;
+- ciment ou eau renseignés non strictement positifs ;
+- une autre composition renseignée est négative ou non numérique ;
+- une valeur dépasse le plafond informatique de 10^9, qui n’est pas une norme.
+
+Une composition facultative VIDE est autorisée par défaut et reste NaN.
+Un zéro explicitement saisi pour les additions ou l’adjuvant est autorisé.
+Un zéro de résistance n’est pas une résistance exploitable dans ce projet.
+Les exclusions ne remplacent pas la mesure : retourner au laboratoire ou à
+la source avant d’interpréter une saisie inattendue.
+
+Options indépendantes dans Règles de nettoyage :
+- Retirer les doublons complets : comparaison des neuf variables numériques,
+  conservation de la première occurrence. Option inactive par défaut.
+- Exiger composition et âge complets : toutes les neuf variables doivent
+  être renseignées, sinon la ligne est exclue.
+
+Le journal fournit numéro de ligne, valeurs brutes, décision et raisons.
+L’effectif après nettoyage est distinct de l’effectif après filtre d’âge.
+Les valeurs extrêmes repérées par 1,5 IQR ne sont jamais supprimées.
+Les données manquantes ne sont pas imputées.
+
+## 7. Formules et hypothèses
+
+Pour n observations comparables :
+    moyenne = somme(x) / n
+    médiane = centre des valeurs triées
+    variance d’échantillon = somme((x - moyenne)^2) / (n - 1)
+    écart-type = racine(variance)
+    CV (%) = 100 * écart-type / moyenne
+
+Variance et écart-type nécessitent n >= 2. CV nécessite une moyenne positive.
+Chaque variable utilise ses propres valeurs présentes. Variance en unité²,
+écart-type en unité d’origine. Quantiles : interpolation linéaire NumPy.
+Une colonne constante donne un écart-type nul si n >= 2, sans corrélation.
+
+Seuil : fréquence empirique = nombre(R < seuil) / n. L’égalité n’est pas
+comptée ; la fonction cumulée empirique des graphiques utilise R <= x.
+Intervalle de Wilson à 95 % : suppose des essais indépendants comparables ;
+ce n’est pas une incertitude instrumentale ou une preuve de représentativité.
+Modèle normal : N(moyenne, écart-type d’échantillon) ; aucun ajustement si
+écart-type nul ou n < 2. La masse sous zéro est affichée, sans troncature.
+Le diagramme normal est descriptif : aucun test ne valide automatiquement
+une normalité ni une décision de conformité.
+
+Bootstrap : 1 000, 2 000 ou 5 000 rééchantillonnages de n observations avec
+remise ; moyenne de chaque échantillon ; intervalle percentile [2,5 %, 97,5 %].
+La graine réglable rend le résultat reproductible à données et réglages
+identiques. Calcul par lots de 50 pour maîtriser la mémoire. L’intervalle
+concerne la moyenne, pas la plage de 95 % des essais. Il ne corrige pas un
+petit échantillon biaisé, une dépendance entre essais ou des âges mélangés.
+
+Pearson : association linéaire ; Spearman : association des rangs.
+Calcul sur paires complètes, au moins trois, avec variabilité dans les deux
+variables. La droite est ajustée sur les mêmes données, sans validation
+prédictive externe. R² est descriptif et ne prouve aucune causalité.
+La matrice peut utiliser des effectifs différents : ils sont accessibles.
+Aucun score de « variable responsable », formule normative ou modèle de
+prédiction à déployer sur chantier n’est annoncé.
+
+Eau / liant massique = eau / (ciment + laitier + cendres).
+Requiert les quatre masses renseignées et un liant total positif.
+Une valeur absente de laitier/cendres n’est pas supposée égale à zéro.
+Ce rapport n’est pas une formule de liant équivalent réglementaire.
+
+Classes d’âge : (0,7], (7,28], (28,90], (90,+infini] ; âge absent à part.
+Le filtre à 28 jours ne prédit ni ne convertit la résistance à cet âge.
+
+## 8. Tests à reproduire avec une calculatrice
+
+A. Cliquer sur Charger le test fictif ; tous âges, doublons conservés.
+Résistances = 20, 25, 30, 35, 40 MPa ; âge 28 jours pour chaque ligne.
+Somme = 150, n = 5 ; moyenne = médiane = 30 MPa.
+Somme des carrés des écarts = 100 + 25 + 0 + 25 + 100 = 250 MPa².
+Variance = 250 / 4 = 62,5 MPa² ; écart-type = 7,90569415 MPa.
+CV = 26,35231383 %. Q05 = 21 ; Q95 = 39 MPa.
+Eau / liant = 150 / (300 + 0 + 0) = 0,5.
+À 30 MPa : 2/5 strictement sous le seuil = 40 % ; modèle normal = 50 %.
+Toutes les compositions et tous les âges sont constants : corrélations
+non calculables dans ce jeu. C’est le comportement attendu.
+
+B. UCI : sans filtre ni dédoublonnage, n = 1 030.
+Moyenne = 35,81796117 MPa ; médiane = 34,445 MPa ;
+écart-type d’échantillon = 16,70574200 MPa (tolérance 0,00001).
+25 doublons complets. Après retrait explicite, 1 005 lignes.
+Les nombres de lignes et statistiques changent avec le filtre à 28 jours.
+
+C. Import CSV minimal :
+    age;resistance
+    28;20
+    28;30
+    7;40
+Tous âges : n = 3, moyenne = 30. Filtre 28 jours : n = 2, moyenne = 25,
+écart-type = 7,07106781 MPa. Composition absente : statistiques correspondantes
+non calculables. Exiger une composition complète laisse zéro ligne.
+
+D. Nettoyage : importer les résistances 20, -1, vide, texte, 40.
+Seules 20 et 40 sont conservées ; journal : trois exclusions expliquées.
+Doublon : 20, 20, 40 donne n=3 ; retrait des doublons donne n=2.
+
+E. Relation connue : importer ciment=100,200,300,400 et résistance=10,20,30,40.
+Pearson = Spearman = 1 ; pente = 0,1 MPa/(kg/m³), intercept=0 et R²=1.
+Ce jeu est fictif et arithmétique : il ne démontre pas une loi physique.
+
+F. Bootstrap : même jeu, même nombre et graine -> mêmes bornes.
+Changer la graine peut changer les bornes : c’est une estimation aléatoire.
+Sur une série constante 30,30,30, les bornes valent exactement 30.
+
+G. Exporter PDF et Excel ; comparer l’effectif et la moyenne à l’écran.
+Le classeur contient Selection, Statistiques, Nettoyage, Brut, Provenance.
+Exporter JSON, changer de source, restaurer : valeurs, provenance, règles
+et filtres restaurés après confirmation. Pas de fusion additive.
+
+H. Comparateur : ouvrir « Tester avec quatre essais fictifs » et cliquer sur
+« Remplacer par les 4 essais fictifs de comparaison ». Ce bouton remplace
+explicitement les données actives ; exporter son propre JSON auparavant.
+Ciment = 300 kg/m³, laitier = cendres = 0 ; eau = 120,150,180,210 kg/m³ ;
+résistances = 40,35,30,25 MPa ; âge = 28 jours pour chaque ligne.
+Rapports eau/liant = 0,40 ; 0,50 ; 0,60 ; 0,70.
+Au seuil 0,55 : A = 40,35 ; B = 30,25 ; nA=nB=2.
+Moyennes : 37,5 et 27,5 MPa ; écart B-A = -10 MPa ;
+écart-type dans chaque groupe = racine(12,5) = 3,53553391 MPa.
+Seuil 2 : B est vide, différence non calculable, bouton de retenue désactivé.
+Cet exemple arithmétique n’est pas une loi de formulation du béton.
+
+I. Fiche d’essai : avec les quatre lignes précédentes, la ligne 1 donne
+40 MPa, 28 jours, eau/liant 0,40, sept dosages connus et une position 100 %.
+La ligne 2 donne 35 MPa et une position 75 %. Pour 20,30,30,40 MPa,
+chacun des essais à 30 MPa a une position descriptive de 75 %, égalités incluses.
+
+J. Rapport : retenir une comparaison ; renseigner le titre et l’étudiant,
+choisir les trois graphiques et cocher la comparaison. Modifier la conclusion,
+préparer puis télécharger le PDF : vérifier les champs et les figures.
+Changer le titre : les téléchargements préparés doivent disparaître jusqu’à
+une nouvelle préparation. Naviguer vers une autre rubrique puis revenir : les
+champs de présentation et la conclusion de la même sélection sont conservés.
+
+## 9. Exports, traçabilité et limites
+
+CSV : UTF-8 BOM, point-virgule, virgule décimale, précision d’affichage de
+10 chiffres significatifs. Le JSON conserve les chaînes brutes exactes.
+Excel : les chaînes sont stockées comme chaînes et non comme formules.
+CSV : les chaînes commençant comme une formule sont préfixées par apostrophe.
+
+PDF : page de présentation, source et sélection, statistiques, seuil,
+relations, méthodes, limites, graphiques choisis, comparaison éventuellement
+retenue et interprétation. Les figures sont vectorielles et statiques.
+Le nuage PDF montre au plus 1 000 points régulièrement sélectionnés dans
+l’ordre des lignes ; la droite utilise toutes les paires complètes.
+Les boîtes utilisent la convention 1,5 IQR et conservent les points extrêmes.
+Le bootstrap reste dans l’application et n’est pas repris dans le PDF.
+La conclusion proposée est un texte déterministe fondé sur les indicateurs,
+pas un service d’intelligence artificielle. L’utilisateur doit la relire.
+Aucune fausse mention de certification. Les documents deviennent indisponibles
+si les données, filtres ou champs du rapport changent : les préparer à nouveau.
+Le classeur conserve ses cinq feuilles de données et ne reproduit pas la mise
+en page du PDF ni le texte libre de la conclusion.
+
+Le JSON contient les valeurs brutes, métadonnées, règles et filtres ; les
+résultats sont recalculés lors de la restauration. Une sauvegarde modifiée
+qui revendique UCI est comparée au tableau UCI incorporé ; si différente,
+l’origine est rétrogradée en origine déclarée. Les champs utilisateur ne
+deviennent pas une provenance attestée par leur simple saisie.
+Le JSON ne sauvegarde pas le brouillon de rapport ni la comparaison retenue.
+
+## 11. Vérifications de livraison
+
+Version 2 : 40 tests automatisés réussis (27 existants et 13 complémentaires).
+Couverture : statistiques connues, quantiles, seuil strict,
+cas constants/vides/isolés, données UCI et empreinte, doublons, valeurs invalides,
+absence d’imputation, corrélations et paires complètes, bootstrap reproductible,
+imports CSV (dont une seule colonne) et XLSX, en-têtes, sauvegardes invalides,
+restauration et contrôle de provenance, exports et démarrage Streamlit AppTest.
+Compléments : séparation exacte des groupes, absence de recouvrement,
+manquants non répartis, groupe vide, différences et écarts-types connus,
+positions avec égalités, fiches absentes, signatures invalidant les rapports,
+PDF enrichis (UCI, exemple fictif, essai unique, sélection vide).
+
+Recette navigateur sur 1440, 768, 390 et 320 pixels : neuf rubriques, navigation,
+graphiques et absence de débordement horizontal de la page. Les tableaux gardent
+leur défilement interne. Les captures ont été inspectées sur ces formats.
+Le bandeau mobile a été espacé pour rester sous la barre fixe et le menu
+se replie automatiquement sur petit écran.
+
+Parcours complets dans le navigateur : source UCI et exemple fictif, bootstrap,
+fréquence 40 % contre 50 % sous loi normale du petit test, variable constante,
+CSV contenant des erreurs, filtre à 28 jours, exports effectivement téléchargés,
+restauration JSON identique, fichier XLSX corrompu refusé sans erreur fatale.
+Recette complémentaire : modification d’une cellule dans le tableau et
+enregistrement confirmé dans le JSON, import XLSX, retrait puis rétablissement
+des doublons (1005 / 1030), composition complète exigée et sélection vide.
+Le rapport PDF d’une sélection vide reste téléchargeable et explicite.
+Version 2 : calcul guidé, boutons précédent/suivant des fiches, comparaison
+fictive vérifiable, groupe vide, saisie des champs de rapport, persistance
+pendant la navigation et invalidation des anciens documents après modification.
+
+Rapports PDF : extraction et contrôle des marges puis rendu visuel ; polices,
+tableaux et en-têtes de continuation contrôlés. Les calculs ont été exécutés
+sur les données intégrées et les petits exemples, sans écriture dans une autre
+application existante. Les fonctions sont importables sans démarrer le serveur.
+
+L’installation des dépendances a été vérifiée sur cet ordinateur. Les fichiers
+de test et les données de recette restent hors du dossier à trois fichiers.
+À prévoir après publication : lien depuis un autre appareil, navigateur réel
+du téléphone, connexion variable, et contrôle des bibliothèques Cloud.
+
+## 12. Références des méthodes
+
+- Jeu expérimental UCI et DOI : section 3.
+- SciPy : https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.linregress.html
+- Spearman : https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.spearmanr.html
+- Wilson : https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats._result_classes.BinomTestResult.proportion_ci.html
+- NumPy quantile : https://numpy.org/doc/stable/reference/generated/numpy.quantile.html
+- Streamlit : https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/app-dependencies
